@@ -1,0 +1,70 @@
+'use strict';
+
+const request = require('request-promise');
+const { promisify } = require('util');
+const parseString = promisify(require('xml2js').parseString);
+
+// this is the same device id that the web app uses
+const udid = 'aaaabbbbccccddddeeeeffffgggg';
+
+const stitcher = request.defaults({
+	baseUrl: 'https://app.stitcher.com/Service/',
+	transform: (body) => parseString(body),
+	qs: {
+		udid,
+		sess: null,
+		version: 3.07,
+		mode: 'webApp',
+		app_version: 1.3
+	}
+});
+
+async function encryptPassword(password) {
+	const res = await request.post('https://app.stitcher.com/Service/encryptPasswordJSON.php', {
+		json: true,
+		form: { udid, password }
+	});
+
+	return res[0];
+}
+
+async function CheckAuthentication(email, password) {
+	const res = await stitcher('CheckAuthentication.php', {
+		qs: { email, epx: await encryptPassword(password) }
+	});
+
+	return res.user.$;
+}
+
+async function GetFeedDetailsWithEpisodes(fid, uid, id_Season) {
+	const res = await stitcher('GetFeedDetailsWithEpisodes.php', {
+		qs: { fid, uid, s: 0, id_Season }
+	});
+
+	const feedDetails = res.feed_details;
+	return {
+		details: Object.assign(feedDetails.feed[0].$, {
+			name: feedDetails.feed[0].name[0],
+			description: feedDetails.feed[0].description[0],
+		}),
+		seasons: feedDetails.feed[0].season ? feedDetails.feed[0].season.map((s) => s.$) : undefined,
+		episodes: feedDetails.episodes[0].episode.map((e) => Object.assign(e.$, {
+			title: e.title[0],
+			description: e.description[0]
+		}))
+	};
+}
+
+async function Search(term, uid) {
+	const res = await stitcher('Search.php', {
+		qs: { term, uid, s: 0, c: 20 }
+	});
+
+
+	return {
+		total: res.search.results[0].$.total,
+		results: res.search.feed.map((f) => f.$)
+	};
+}
+
+module.exports = { CheckAuthentication, GetFeedDetailsWithEpisodes, Search };

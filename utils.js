@@ -4,6 +4,7 @@ const api = require('./api');
 const { DateTime } = require('luxon');
 const auth = require('basic-auth');
 const db = require('./db');
+const cache = require('memory-cache');
 
 function pubDateParse(published) {
 	// stitcher returns dates in the LA tz AFAICT
@@ -23,6 +24,11 @@ function pubDateFormat(published) {
 }
 
 async function getShowFeed(showId, userId) {
+	const cachedFeed = cache.get(showId);
+	if (cachedFeed) {
+		return cachedFeed;
+	}
+
 	const feed = await api.GetFeedDetailsWithEpisodes(showId, userId);
 
 	if (feed.seasons) {
@@ -35,6 +41,9 @@ async function getShowFeed(showId, userId) {
 
 	// sort feed by pubDate
 	feed.episodes.sort((a, b) => pubDateParse(a.published) - pubDateParse(b.published));
+
+	// stick feed in cache for 30 minutes
+	cache.put(showId, feed, 1800000);
 
 	return feed;
 }

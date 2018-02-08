@@ -60,7 +60,6 @@ async function Search(term, uid) {
 		qs: { term, uid, s: 0, c: 20 }
 	});
 
-
 	return {
 		total: res.search.results[0].$.total,
 		results: res.search.feed.map((f) => f.$)

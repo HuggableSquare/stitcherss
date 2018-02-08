@@ -40,7 +40,7 @@ async function getShowFeed(showId, userId) {
 	}
 
 	// sort feed by pubDate
-	feed.episodes.sort((a, b) => pubDateParse(a.published) - pubDateParse(b.published));
+	feed.episodes.sort((a, b) => pubDateParse(b.published) - pubDateParse(a.published));
 
 	// stick feed in cache for 30 minutes
 	cache.put(showId, feed, 1800000);

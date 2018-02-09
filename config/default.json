@@ -1,0 +1,10 @@
+{
+	"protocol": "http",
+	"port": 7824,
+	"domain": "example.com:7824",
+	"database": {
+		"dialect": "sqlite",
+		"storage": "stitcherss.db",
+		"logging": true
+	}
+}

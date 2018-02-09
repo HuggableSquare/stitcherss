@@ -7,19 +7,13 @@ const shortid = require('shortid');
 const path = require('path');
 const url = require('url');
 const mime = require('mime-types');
+const config = require('config');
 const api = require('./api');
 const utils = require('./utils');
 const db = require('./db');
 
 const app = express();
 app.use(bodyParser.json());
-
-// TODO: setup a real config
-const config = {
-	protocol: 'https://',
-	port: 7824,
-	domain: 'example.com:7824'
-};
 
 app.post('/login', async (req, res) => {
 	try {
@@ -55,7 +49,7 @@ app.get('/shows/:showId/feed', utils.basicAuth(), async (req, res) => {
 			title: data.details.name,
 			description: data.details.description,
 			generator: 'stitcherss',
-			feed_url: config.protocol + config.domain + req.originalUrl,
+			feed_url: `${config.protocol}://${req.login.name}:${req.login.pass}@${config.domain}${req.originalUrl}`,
 			site_url: `https://app.stitcher.com/browse/feed/${data.details.id}/details`,
 			image_url: data.details.imageURL,
 			pubDate: utils.pubDateFormat(data.details.published),
@@ -75,7 +69,7 @@ app.get('/shows/:showId/feed', utils.basicAuth(), async (req, res) => {
 				date: utils.pubDateFormat(episode.published),
 				enclosure: {
 					// TODO: make this less gross maybe?
-					url: `${config.protocol}${req.login.name}:${req.login.pass}@${config.domain}/shows/${req.params.showId}/episodes/${episode.id}/enclosure.mp3`,
+					url: `${config.protocol}://${req.login.name}:${req.login.pass}@${config.domain}/shows/${req.params.showId}/episodes/${episode.id}/enclosure.mp3`,
 					type: mime.lookup(path.extname(url.parse(episode.url).pathname))
 				},
 				custom_elements: [

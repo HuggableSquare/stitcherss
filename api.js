@@ -51,14 +51,15 @@ async function GetFeedDetailsWithEpisodes(fid, uid, opts = {}) {
 		qs: { fid, uid, max_epi, s: offset, id_Season: seasonId }
 	});
 
-	const feedDetails = res.feed_details;
+	const feed = res.feed_details.feed[0];
+	const episodes = res.feed_details.episodes[0];
 	return {
-		details: Object.assign(feedDetails.feed[0].$, {
-			name: feedDetails.feed[0].name[0],
-			description: feedDetails.feed[0].description[0],
+		details: Object.assign(feed.$, {
+			name: feed.name[0],
+			description: feed.description[0],
 		}),
-		seasons: feedDetails.feed[0].season ? feedDetails.feed[0].season.map((s) => s.$) : undefined,
-		episodes: feedDetails.episodes[0].episode.map((e) => Object.assign(e.$, {
+		seasons: feed.season ? feed.season.map((s) => s.$) : undefined,
+		episodes: episodes.episode.map((e) => Object.assign(e.$, {
 			title: e.title[0],
 			description: e.description[0]
 		}))

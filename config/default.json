@@ -4,7 +4,6 @@
 	"domain": "example.com:7824",
 	"database": {
 		"dialect": "sqlite",
-		"storage": "stitcherss.db",
-		"logging": true
+		"storage": "stitcherss.db"
 	}
 }

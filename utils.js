@@ -34,9 +34,18 @@ async function getShowFeed(showId, userId) {
 	if (feed.seasons) {
 		feed.episodes = [];
 		await Promise.all(feed.seasons.map(async (season) => {
-			const tmp = await api.GetFeedDetailsWithEpisodes(showId, userId, season.id);
+			const tmp = await api.GetFeedDetailsWithEpisodes(showId, userId, { seasonId: season.id });
 			feed.episodes = feed.episodes.concat(tmp.episodes);
 		}));
+	} else if (feed.details.episodeCount > feed.episodes.length) {
+		// note: episodeCount is completely wrong if the show has seasons
+		let offset = 50;
+		while (feed.details.episodeCount > feed.episodes.length) {
+			const tmp = await api.GetFeedDetailsWithEpisodes(showId, userId, { offset });
+			feed.episodes = feed.episodes.concat(tmp.episodes);
+			// magic numbers REEEEEE
+			offset += 50;
+		}
 	}
 
 	// sort feed by pubDate

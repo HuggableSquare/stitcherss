@@ -36,9 +36,19 @@ async function CheckAuthentication(email, password) {
 	return res.user.$;
 }
 
-async function GetFeedDetailsWithEpisodes(fid, uid, id_Season) {
+async function GetFeedDetailsWithEpisodes(fid, uid, opts = {}) {
+	const { seasonId, offset = 0 } = opts;
+
+	// when requesting a season, the entire thing will be returned
+	// so max_epi is only used when requesting a show without seasons
+	// this is the same as how the webapp does it
+
+	// technically this endpoint seems to accept any number for max_epi
+	// I'm going to stick with 50 for now since that's what the webapp does
+	const max_epi = seasonId ? undefined : 50;
+
 	const res = await stitcher('GetFeedDetailsWithEpisodes.php', {
-		qs: { fid, uid, s: 0, id_Season }
+		qs: { fid, uid, max_epi, s: offset, id_Season: seasonId }
 	});
 
 	const feedDetails = res.feed_details;

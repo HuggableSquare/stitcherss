@@ -37,6 +37,14 @@ async function getShowFeed(showId, userId) {
 			const tmp = await api.GetFeedDetailsWithEpisodes(showId, userId, { seasonId: season.id });
 			feed.episodes = feed.episodes.concat(tmp.episodes);
 		}));
+
+		// sort feed by pubDate
+		feed.episodes.sort((a, b) => {
+			if (a.published !== b.published) {
+				return a.published < b.published ? 1 : -1;
+			}
+			return 0;
+		});
 	} else if (feed.details.episodeCount > feed.episodes.length) {
 		// note: episodeCount is completely wrong if the show has seasons
 		let offset = 50;
@@ -47,9 +55,6 @@ async function getShowFeed(showId, userId) {
 			offset += 50;
 		}
 	}
-
-	// sort feed by pubDate
-	feed.episodes.sort((a, b) => pubDateParse(b.published) - pubDateParse(a.published));
 
 	// stick feed in cache for 30 minutes
 	cache.put(showId, feed, 1800000);

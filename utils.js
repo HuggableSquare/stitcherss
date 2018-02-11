@@ -6,11 +6,6 @@ const auth = require('basic-auth');
 const db = require('./db');
 const cache = require('memory-cache');
 
-function pubDateParse(published) {
-	// stitcher returns dates in the LA tz AFAICT
-	return DateTime.fromSQL(published, { zone: 'America/Los_Angeles' });
-}
-
 function durationFormat(seconds) {
 	seconds = Number(seconds);
 	const HH = Math.floor(seconds / 3600).toString().padStart(2, '0');
@@ -20,7 +15,8 @@ function durationFormat(seconds) {
 }
 
 function pubDateFormat(published) {
-	return pubDateParse(published).toISO();
+	// stitcher returns dates in the LA tz AFAICT
+	return DateTime.fromSQL(published, { zone: 'America/Los_Angeles' }).toISO();
 }
 
 async function getShowFeed(showId, userId) {

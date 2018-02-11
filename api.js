@@ -45,7 +45,7 @@ async function GetFeedDetailsWithEpisodes(fid, uid, opts = {}) {
 
 	// technically this endpoint seems to accept any number for max_epi
 	// I'm going to stick with 50 for now since that's what the webapp does
-	const max_epi = seasonId ? undefined : 50;
+	const max_epi = seasonId ? undefined : 50; // eslint-disable-line camelcase
 
 	const res = await stitcher('GetFeedDetailsWithEpisodes.php', {
 		qs: { fid, uid, max_epi, s: offset, id_Season: seasonId }

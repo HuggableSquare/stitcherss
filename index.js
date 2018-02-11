@@ -69,6 +69,7 @@ app.get('/shows/:showId/feed', utils.basicAuth(), async (req, res) => {
 				date: utils.pubDateFormat(episode.published),
 				enclosure: {
 					// TODO: make this less gross maybe?
+					// eslint-disable-next-line max-len
 					url: `${config.protocol}://${req.login.name}:${req.login.pass}@${config.domain}/shows/${req.params.showId}/episodes/${episode.id}/enclosure.mp3`,
 					type: mime.lookup(path.extname(url.parse(episode.url).pathname))
 				},

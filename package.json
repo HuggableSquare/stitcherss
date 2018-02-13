@@ -18,8 +18,8 @@
     "request-promise": "^4.2.2",
     "rss": "^1.2.2",
     "sequelize": "^4.32.6",
-    "shortid": "^2.2.8",
     "sqlite3": "^3.1.13",
+    "uuid": "^3.2.1",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {

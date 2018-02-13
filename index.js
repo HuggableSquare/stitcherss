@@ -3,7 +3,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const RSS = require('rss');
-const shortid = require('shortid');
+const uuid = require('uuid');
 const path = require('path');
 const url = require('url');
 const mime = require('mime-types');
@@ -15,33 +15,35 @@ const db = require('./db');
 const app = express();
 app.use(bodyParser.json());
 
-app.post('/login', async (req, res) => {
+app.post('/login', utils.stitcherAuth(), async (req, res) => {
 	try {
-		const user = await api.CheckAuthentication(req.body.email, req.body.password);
-
-		if (user.error) {
-			return res.status(403).send(user.error);
-		}
-
-		if (user.subscriptionState !== '3') {
-			return res.status(403).send('User is not a subscriber');
-		}
-
 		// if user already has generated ids don't overwrite them
-		const record = await db.User.findById(user.id) || {};
-		const authData = {
-			rssUser: record.rssUser || shortid.generate(),
-			rssPassword: record.rssPassword || shortid.generate()
-		};
+		const record = await db.User.findById(req.user.id) || {};
+		const authData = { token: record.token || uuid.v4() };
 
-		await db.User.upsert(Object.assign(user, authData));
+		await db.User.upsert(Object.assign(req.user, authData));
 		return res.status(200).json(authData);
 	} catch (e) {
 		return res.status(500).send('Server error');
 	}
 });
 
-app.get('/shows/:showId/feed', utils.basicAuth(), async (req, res) => {
+app.post('/reset-token', utils.stitcherAuth(), async (req, res) => {
+	try {
+		const record = await db.User.findById(req.user.id);
+		if (!record) {
+			return res.status(400).send('User has not logged in previously');
+		}
+
+		record.set('token', uuid.v4());
+		await record.save();
+		return res.status(200).json({ token: record.token });
+	} catch (e) {
+		return res.status(500).send('Server error');
+	}
+});
+
+app.get('/shows/:showId/feed', utils.tokenAuth(), async (req, res) => {
 	try {
 		const data = await utils.getShowFeed(req.params.showId, req.user.id);
 
@@ -49,7 +51,7 @@ app.get('/shows/:showId/feed', utils.basicAuth(), async (req, res) => {
 			title: data.details.name,
 			description: data.details.description,
 			generator: 'stitcherss',
-			feed_url: `${config.protocol}://${req.login.name}:${req.login.pass}@${config.domain}${req.originalUrl}`,
+			feed_url: `${config.protocol}://${config.domain}${req.originalUrl}`,
 			site_url: `https://app.stitcher.com/browse/feed/${data.details.id}/details`,
 			image_url: data.details.imageURL,
 			pubDate: utils.pubDateFormat(data.details.published),
@@ -70,7 +72,7 @@ app.get('/shows/:showId/feed', utils.basicAuth(), async (req, res) => {
 				enclosure: {
 					// TODO: make this less gross maybe?
 					// eslint-disable-next-line max-len
-					url: `${config.protocol}://${req.login.name}:${req.login.pass}@${config.domain}/shows/${req.params.showId}/episodes/${episode.id}/enclosure.mp3`,
+					url: `${config.protocol}://${config.domain}/shows/${req.params.showId}/episodes/${episode.id}/enclosure.mp3?token=${req.query.token}`,
 					type: mime.lookup(path.extname(url.parse(episode.url).pathname))
 				},
 				custom_elements: [
@@ -87,7 +89,7 @@ app.get('/shows/:showId/feed', utils.basicAuth(), async (req, res) => {
 	}
 });
 
-app.get('/shows/:showId/episodes/:episodeId/enclosure.mp3', utils.basicAuth(), async (req, res) => {
+app.get('/shows/:showId/episodes/:episodeId/enclosure.mp3', utils.tokenAuth(), async (req, res) => {
 	try {
 		const feed = await utils.getShowFeed(req.params.showId, req.user.id);
 		const episode = feed.episodes.find((e) => e.id === req.params.episodeId);
@@ -101,3 +103,5 @@ app.get('/shows/:showId/episodes/:episodeId/enclosure.mp3', utils.basicAuth(), a
 });
 
 app.listen(config.port);
+
+module.exports = app;

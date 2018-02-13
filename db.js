@@ -27,8 +27,7 @@ const User = sequelize.define('user', {
 	subscriptionState: { type: Sequelize.STRING },
 	subscriptionExpiration: { type: Sequelize.STRING },
 	subscriptionPlatform: { type: Sequelize.STRING },
-	rssUser: { type: Sequelize.STRING, unique: true },
-	rssPassword: { type: Sequelize.STRING, unique: true }
+	token: { type: Sequelize.UUID, unique: true }
 });
 
 module.exports = { sequelize, User };

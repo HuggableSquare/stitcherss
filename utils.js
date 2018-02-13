@@ -58,23 +58,19 @@ async function getShowFeed(showId, userId) {
 	return feed;
 }
 
-function basicAuth() {
-	// there's a weird bug with gpodder where it sends user/pass in all lowercase
-	// when trying to download an episode ¯\_(ツ)_/¯
+function stitcherAuth() {
 	return async function(req, res, next) {
 		try {
-			const login = auth(req);
-			if (!login) {
-				res.set('WWW-Authenticate', 'Basic realm="stitcherss"');
-				return res.status(401).send('Access denied');
+			const user = await api.CheckAuthentication(req.body.email, req.body.password);
+
+			if (user.error) {
+				return res.status(403).send(user.error);
 			}
 
-			const user = await db.User.findOne({ where: { rssUser: login.name, rssPassword: login.pass } });
-			if (!user) {
-				return res.status(403).send('User/pass incorrect');
+			if (user.subscriptionState !== '3') {
+				return res.status(403).send('User is not a subscriber');
 			}
 
-			req.login = login;
 			req.user = user;
 			return next();
 		} catch (e) {
@@ -83,4 +79,20 @@ function basicAuth() {
 	};
 }
 
-module.exports = { durationFormat, pubDateFormat, getShowFeed, basicAuth };
+function tokenAuth() {
+	return async function(req, res, next) {
+		try {
+			const user = await db.User.findOne({ where: { token: req.query.token } });
+			if (!user) {
+				return res.status(403).send('Incorrect token');
+			}
+
+			req.user = user;
+			return next();
+		} catch (e) {
+			return res.status(500).send('Server error');
+		}
+	};
+}
+
+module.exports = { durationFormat, pubDateFormat, getShowFeed, stitcherAuth, tokenAuth };

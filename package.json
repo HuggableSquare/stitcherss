@@ -7,7 +7,6 @@
     "lint": "./node_modules/.bin/eslint ."
   },
   "dependencies": {
-    "basic-auth": "^2.0.0",
     "body-parser": "^1.18.2",
     "config": "^1.29.4",
     "express": "^4.16.2",

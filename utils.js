@@ -2,7 +2,6 @@
 
 const api = require('./api');
 const { DateTime } = require('luxon');
-const auth = require('basic-auth');
 const db = require('./db');
 const cache = require('memory-cache');
 

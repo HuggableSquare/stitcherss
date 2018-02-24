@@ -102,6 +102,6 @@ app.get('/shows/:showId/episodes/:episodeId/enclosure.mp3', utils.tokenAuth(), a
 	}
 });
 
-app.listen(config.port);
+app.listen(config.port, config.host);
 
 module.exports = app;

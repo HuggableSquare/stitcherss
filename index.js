@@ -72,7 +72,7 @@ app.get('/shows/:showId/feed', utils.tokenAuth(), async (req, res) => {
 				enclosure: {
 					// TODO: make this less gross maybe?
 					// eslint-disable-next-line max-len
-					url: `${config.protocol}://${config.domain}/shows/${req.params.showId}/episodes/${episode.id}/enclosure.mp3?token=${req.query.token}`,
+					url: `${config.protocol}://${config.domain}/shows/${req.params.showId}/episodes/${episode.id}/enclosure?token=${req.query.token}`,
 					type: mime.lookup(path.extname(url.parse(episode.url).pathname))
 				},
 				custom_elements: [
@@ -89,7 +89,7 @@ app.get('/shows/:showId/feed', utils.tokenAuth(), async (req, res) => {
 	}
 });
 
-app.get('/shows/:showId/episodes/:episodeId/enclosure.mp3', utils.tokenAuth(), async (req, res) => {
+app.get('/shows/:showId/episodes/:episodeId/enclosure', utils.tokenAuth(), async (req, res) => {
 	try {
 		const feed = await utils.getShowFeed(req.params.showId, req.user.id);
 		const episode = feed.episodes.find((e) => e.id === req.params.episodeId);

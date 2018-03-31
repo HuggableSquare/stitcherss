@@ -66,14 +66,17 @@ async function GetFeedDetailsWithEpisodes(fid, uid, opts = {}) {
 	};
 }
 
-async function Search(term, uid) {
+async function Search(term, uid, offset = 0) {
 	const res = await stitcher('Search.php', {
-		qs: { term, uid, s: 0, c: 20 }
+		qs: { term, uid, s: offset, c: 20 }
 	});
 
 	return {
 		total: res.search.results[0].$.total,
-		results: res.search.feed.map((f) => f.$)
+		results: res.search.feed.map((f) => Object.assign(f.$, {
+			name: f.name[0],
+			description: f.description[0]
+		}))
 	};
 }
 

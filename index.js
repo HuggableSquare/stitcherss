@@ -43,6 +43,16 @@ app.post('/reset-token', utils.stitcherAuth(), async (req, res) => {
 	}
 });
 
+app.get('/search', utils.tokenAuth(), async (req, res) => {
+	try {
+		const results = await api.Search(req.query.term, req.user.id, req.query.offset);
+		return res.status(200).json(results);
+	} catch (e) {
+		console.log(e);
+		return res.status(500).send('Server error');
+	}
+});
+
 app.get('/shows/:showId/feed', utils.tokenAuth(), async (req, res) => {
 	try {
 		const data = await utils.getShowFeed(req.params.showId, req.user.id);

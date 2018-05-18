@@ -10,6 +10,7 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "config": "^1.29.4",
+    "eol": "^0.9.1",
     "express": "^4.16.2",
     "luxon": "^0.4.0",
     "memory-cache": "^0.2.0",

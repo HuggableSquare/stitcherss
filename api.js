@@ -3,13 +3,14 @@
 const request = require('request-promise');
 const { promisify } = require('util');
 const parseString = promisify(require('xml2js').parseString);
+const eol = require('eol');
 
 // this is the same device id that the web app uses
 const udid = 'aaaabbbbccccddddeeeeffffgggg';
 
 const stitcher = request.defaults({
 	baseUrl: 'https://app.stitcher.com/Service/',
-	transform: (body) => parseString(body),
+	transform: (body) => parseString(body, { valueProcessors: [eol.lf] }),
 	qs: {
 		udid,
 		sess: null,

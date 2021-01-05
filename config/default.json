@@ -2,6 +2,7 @@
 	"protocol": "http",
 	"port": 7824,
 	"domain": "example.com:7824",
+	"whitelist": false,
 	"database": {
 		"dialect": "sqlite",
 		"storage": "stitcherss.db"

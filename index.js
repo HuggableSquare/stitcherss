@@ -17,6 +17,10 @@ app.use(bodyParser.json());
 
 app.post('/login', utils.stitcherAuth(), async (req, res) => {
 	try {
+    if (config.whitelist && !config.whitelist.includes(req.user.id)) {
+      throw new Error(`user not on whitelist: ${req.user.id}`);
+    }
+
 		// if user already has generated ids don't overwrite them
 		const record = await db.User.findById(req.user.id) || {};
 		const authData = { token: record.token || uuid.v4() };
@@ -24,7 +28,7 @@ app.post('/login', utils.stitcherAuth(), async (req, res) => {
 		await db.User.upsert(Object.assign(req.user, authData));
 		return res.status(200).json(authData);
 	} catch (e) {
-		return res.status(500).send('Server error');
+		return res.status(500).send(e.message);
 	}
 });
 

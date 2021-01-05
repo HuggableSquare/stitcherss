@@ -73,7 +73,8 @@ app.get('/shows/:showId/feed', utils.tokenAuth(), async (req, res) => {
 				itunes: 'http://www.itunes.com/dtds/podcast-1.0.dtd'
 			},
 			custom_elements: [
-				{ 'itunes:image': { _attr: { href: data.details.imageURL } } }
+				{ 'itunes:image': { _attr: { href: data.details.imageURL } } },
+				{ 'itunes:author': 'Stitcher Premium' }
 			]
 		});
 

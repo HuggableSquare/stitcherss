@@ -15,6 +15,10 @@ const db = require('./db');
 const app = express();
 app.use(bodyParser.json());
 
+app.get('/ping', (req, res) => {
+	return res.status(200).send('pong');
+});
+
 app.post('/login', utils.stitcherAuth(), async (req, res) => {
 	try {
 		if (config.whitelist && !config.whitelist.includes(req.user.id)) {

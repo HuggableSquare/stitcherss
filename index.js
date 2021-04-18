@@ -17,9 +17,9 @@ app.use(bodyParser.json());
 
 app.post('/login', utils.stitcherAuth(), async (req, res) => {
 	try {
-    if (config.whitelist && !config.whitelist.includes(req.user.id)) {
-      throw new Error(`user not on whitelist: ${req.user.id}`);
-    }
+		if (config.whitelist && !config.whitelist.includes(req.user.id)) {
+			throw new Error(`user not on whitelist: ${req.user.id}`);
+		}
 
 		// if user already has generated ids don't overwrite them
 		const record = await db.User.findById(req.user.id) || {};

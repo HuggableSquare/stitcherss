@@ -11,7 +11,7 @@
     "body-parser": "^1.18.2",
     "config": "^1.29.4",
     "eol": "^0.9.1",
-    "express": "^4.16.2",
+    "express": "^4.17.3",
     "luxon": "^0.4.0",
     "memory-cache": "^0.2.0",
     "mime-types": "^2.1.17",
